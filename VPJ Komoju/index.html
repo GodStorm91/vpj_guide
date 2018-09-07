@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>VPJ Komoju </title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="created" content="2018-09-04 22:06:53 +0900" />
+    <meta name="modified" content="2018-09-05 20:41:07 +0900" />
+    <meta name="tags" content="vpj, vpj/attendize, vpj/attendize/komoju"/>
+    <link rel="stylesheet" href="/default.css" type="text/css">
+  </head>
+  <body>
+    <main>
+      <article>
+       <h1>VPJ Komoju </h1>
+<p>This page is using for settings Komoju with payments in attending</p>
+<p>Firstly we will test the api</p>
+<p>Komoju main features</p>
+<p>* Payment </p>
+<p>* Refund</p>
+<br>
+<h2>Komoju Fee </h2>
+<pre><code class="code-multiline highlight">Supported Payment Methods
+Konbini (JPY)
+2.75% (Default)
+Credit Card (JPY)
+3.60% (VISA)
+3.60% (MasterCard)
+3.85% (American Express)
+3.85% (JCB)
+3.85% (Diners Club)
+Pay Easy (JPY)
+2.75% (Default)
+Bank Transfer (JPY)
+5.00% (Default)
+WebMoney (JPY)
+12.00% (Default)
+BitCash (JPY)
+12.00% (Default)
+NET CASH (JPY)
+12.00% (Default)
+nanaco (JPY)
+12.00% (Default)
+</code></pre>
+<br>
+<br>
+<pre><code class="code-multiline highlight">Merchant UUID	3mk8hilzifv5nin5fdsbkzmah
+Secret Key	sk_test_b72ai9klh698cor88yz3fp9g 
+Publishable Key	pk_test_6uj61qk1ex54n4i3fosl1k4g 
+</code></pre>
+<br>
+<p>Test api</p>
+<pre><code class="code-multiline highlight">curl -u {{ secret_key }}: "https://komoju.com/api/v1/payments"
+
+{"resource":"list","total":0,"page":1,"per_page":10,"last_page":0,"data":[]}%
+</code></pre>
+<br>
+<h2>Payment api </h2>
+<h3>Request</h3>
+<pre><code class="code-multiline highlight">curl -X POST https://komoju.com/api/v1/payments \
+  -u sk_test_b72ai9klh698cor88yz3fp9g: \
+  -d "amount=1000" \
+  -d "currency=JPY" \
+  -d "external_order_num=123" \
+  -d "metadata[foobar]=hoge" \
+  -d "payment_details[family_name]=Yamada" \
+  -d "payment_details[given_name]=Taro" \
+  -d "payment_details[month]=1" \
+  -d "payment_details[number]=4111111111111111" \
+  -d "payment_details[type]=credit_card" \
+  -d "payment_details[verification_value]=123" \
+  -d "payment_details[year]=2019" 
+</code></pre>
+<br>
+<h3>Response</h3>
+<br>
+<pre><code class="code-multiline highlight"><span class="p">{</span><span class="s2">"id"</span><span class="p">:</span><span class="s2">"cu8g7270qc11aiz1i867p5fyc"</span><span class="p">,</span><span class="s2">"resource"</span><span class="p">:</span><span class="s2">"payment"</span><span class="p">,</span><span class="s2">"status"</span><span class="p">:</span><span class="s2">"captured"</span><span class="p">,</span><span class="s2">"amount"</span><span class="p">:</span><span class="mi">1000</span><span class="p">,</span><span class="s2">"tax"</span><span class="p">:</span><span class="mi">80</span><span class="p">,</span><span class="s2">"customer"</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span><span class="s2">"payment_deadline"</span><span class="p">:</span><span class="s2">"2018-09-11T14:59:59Z"</span><span class="p">,</span><span class="s2">"payment_details"</span><span class="p">:{</span><span class="s2">"type"</span><span class="p">:</span><span class="s2">"credit_card"</span><span class="p">,</span><span class="s2">"email"</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span><span class="s2">"brand"</span><span class="p">:</span><span class="s2">"visa"</span><span class="p">,</span><span class="s2">"last_four_digits"</span><span class="p">:</span><span class="s2">"1111"</span><span class="p">,</span><span class="s2">"month"</span><span class="p">:</span><span class="mi">1</span><span class="p">,</span><span class="s2">"year"</span><span class="p">:</span><span class="mi">2019</span><span class="p">},</span><span class="s2">"payment_method_fee"</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"total"</span><span class="p">:</span><span class="mi">1080</span><span class="p">,</span><span class="s2">"currency"</span><span class="p">:</span><span class="s2">"JPY"</span><span class="p">,</span><span class="s2">"description"</span><span class="p">:</span><span class="kc">null</span><span class="p">,</span><span class="s2">"captured_at"</span><span class="p">:</span><span class="s2">"2018-09-04T13:16:50Z"</span><span class="p">,</span><span class="s2">"external_order_num"</span><span class="p">:</span><span class="s2">"123"</span><span class="p">,</span><span class="s2">"metadata"</span><span class="p">:{</span><span class="s2">"foobar"</span><span class="p">:</span><span class="s2">"hoge"</span><span class="p">},</span><span class="s2">"created_at"</span><span class="p">:</span><span class="s2">"2018-09-04T13:16:50Z"</span><span class="p">,</span><span class="s2">"amount_refunded"</span><span class="p">:</span><span class="mi">0</span><span class="p">,</span><span class="s2">"locale"</span><span class="p">:</span><span class="s2">"ja"</span><span class="p">,</span><span class="s2">"refunds"</span><span class="p">:[],</span><span class="s2">"refund_requests"</span><span class="p">:[]}</span><span class="err">%</span><span class="w">
+</span></code></pre>
+<br>
+<h2>Request payment with Combini</h2>
+<h3>Request</h3>
+<pre><code class="code-multiline highlight">curl -X POST https://komoju.com/api/v1/payments \
+  -u sk_test_b72ai9klh698cor88yz3fp9g: \
+  -d "amount=1000" \
+  -d "currency=JPY" \
+  -d "external_order_num=124" \
+  -d "metadata[foobar]=hoge" \
+  -d "payment_details[email]=godstorm91@gmail.com" \
+  -d "payment_details[type]=konbini" \
+  -d "payment_details[store]=lawson" \
+  -d "payment_details[phone]=08062113638" \
+  -d "payment_details[expiry_days	]=40" 
+</code></pre>
+<br>
+<br>
+<p><a href="../tag/vpj/attendize/komoju/" class="hashtag">#vpj/attendize/komoju</a></p>
+
+      </article>
+    </main>
+    <footer>
+      <div><a href="/">Home</a></div>
+      <div>&copy; 2018 Your Name</div>
+      <div> by <a href="https://github.com/wuusn/miyano/">Miyano</a></div>
+    </footer>
+  </body>
+</html>
