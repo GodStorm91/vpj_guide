@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Flow checkout and payment of Komoju</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="created" content="2018-09-15 01:43:36 +0900" />
+    <meta name="modified" content="2018-09-15 02:50:53 +0900" />
+    <meta name="tags" content="vpj, vpj/attendize, vpj/attendize/komoju"/>
+    <link rel="stylesheet" href="/default.css" type="text/css">
+  </head>
+  <body>
+    <main>
+      <article>
+       <h1>Flow checkout and payment of Komoju</h1>
+<p>This flow is for checkout event </p>
+<br>
+<h2>Flow checkout </h2>
+<p>Checkout by </p>
+<br>
+<h3>Redirect user to Komoju page:</h3>
+<br>
+<p>Currently we don’t split between credit and convenience store</p>
+<br>
+<h3>Prepare payment data before redirect</h3>
+<p>Payment type :</p>
+<p>&emsp;* credit</p>
+<p>&emsp;* combini</p>
+<br>
+<h4>The info below  should be set </h4>
+<p><code class="code-inline">EventCheckoutController@postCreateOrder</code></p>
+<br>
+<pre><code class="code-multiline highlight">// Redirect when success
+transaction[return_url] =&gt;                           route('showEventCheckoutPaymentReturn', ['event_id'              =&gt; $event_id, 'is_payment_successful' =&gt; 1]),
+
+//Redirect when error or user cancel payment
+transaction[cancel_url] =&gt;                           route('showEventCheckoutPaymentReturn', ['event_id'              =&gt; $event_id, 'is_payment_successful' =&gt; 1]),
+</code></pre>
+<br>
+<p>-> for example : </p>
+<p>* if payment is ok, the link below will be accessed</p>
+<p><code class="code-inline">http://event.vietpro.jp/e/{event_id}/checkout/success?is_payment_successful=1</code></p>
+<br>
+<p>* if payment is failed the link below will be accessed</p>
+<p><code class="code-inline">http://event.vietpro.jp/e/{event_id}/checkout/success?is_payment_cancelled=1</code></p>
+<br>
+<p>According to Komoju, both of the route above will call this method:</p>
+<p><code class="code-inline">EventCheckoutController@showEventCheckoutPaymentReturn</code></p>
+<br>
+<h4>Capture the redirect from Komoju:</h4>
+<p>Komoju will redirect to the url above with the data below </p>
+<p>(Remember to verified the http referrer to ensure that the request is from Komoju - or do double checking with Komoju  API)</p>
+<p>As the request will be redirected to <code class="code-inline">checkout/success</code> we only check for the <code class="code-inline">transaction[status]: {status}</code> data</p>
+<br>
+<pre><code class="code-multiline highlight">status: captured -&gt; user has paid for the ticket
+status: authorized -&gt; user hasn't paid for the ticket
+status: cancelled -&gt; user cancelled
+</code></pre>
+<br>
+<h5>Status = captured (User has paid for the ticket)</h5>
+<ol start="1" style="counter-reset:ol 0;"><li>A Ticket will be generated and sent via email to user</li></ol>
+<ol start="2" style="counter-reset:ol 1;"><li>An order with status <i>*1</i>* (will be created)</li></ol>
+<ol start="3" style="counter-reset:ol 2;"><li>Total Sales, events vacancies will be updated</li></ol>
+<br>
+<h5>Status = canceled (User don’t paid for the ticket)</h5>
+<ol start="1" style="counter-reset:ol 0;"><li>Redirect user to homepage</li></ol>
+<br>
+<h5>Status = authorized (User issued a convenience store payment request)</h5>
+<ol start="1" style="counter-reset:ol 0;"><li>An order with status <i>*5</i>* (on hold) will be created</li></ol>
+<ol><ol start="1" style="counter-reset:ol 0;"><li>order.status = 5</li></ol></ol>
+<ol><ol start="2" style="counter-reset:ol 1;"><li>order.transaction_id  = callbackのexternal_order_num (for identified the order when a <code class="code-inline">payment.captured</code> hook is invoked)</li></ol></ol>
+<br>
+<br>
+<h2>Confine payment web hook</h2>
+<p>Should be configured on Komoju side and call back to VPJ like this </p>
+<br>
+<p>Refer the screenshot below</p>
+<p><img src="assets/E08FB079-CBC5-4572-8CA5-7DCF56E6F0AD.png"></p>
+<br>
+<p>* Webhook Url will subscribe to these events</p>
+<p>&emsp;* captured: user completed the payment,</p>
+<p>&emsp;* expired: the payment is expired , we should clear up the hanging order</p>
+<p>&emsp;* cancelled: user cancelled when going to the convenience store</p>
+<p>* <b>Secret</b>: the secret key should be set to authenticated the request come from Komoju not from hackers. (VPJ’s web hook should validate these secret before any processing)</p>
+<br>
+<h3>checkout/webhook</h3>
+<p>This API is similar with this method</p>
+<p><code class="code-inline">EventCheckoutContrller@showEventCheckoutPaymentReturn</code></p>
+<p>it should contains these process:</p>
+<p>&emsp;* complete the order </p>
+<p>&emsp;&emsp;* update from status 5 -> 1</p>
+<p>&emsp;&emsp;* send email to user to inform they have completed the payment</p>
+<br>
+<br>
+<p><a href="../tag/vpj/attendize/komoju/" class="hashtag">#vpj/attendize/komoju</a></p>
+
+      </article>
+    </main>
+    <footer>
+      <div><a href="/">Home</a></div>
+      <div>&copy; 2018 Your Name</div>
+      <div> by <a href="https://github.com/wuusn/miyano/">Miyano</a></div>
+    </footer>
+  </body>
+</html>
